@@ -1,4 +1,5 @@
 import React from 'react';
+import { keyframes } from 'styled-components';
 import styled from 'styled-components/macro';
 
 import { WEIGHTS } from '../../constants';
@@ -30,6 +31,8 @@ const ShoeCard = ({
     : isNewShoe(releaseDate)
       ? 'new-release'
       : 'default'
+  
+  const rotation = Math.random() * 16 - 8
 
   return (
     <Link href={`/shoe/${slug}`}>
@@ -38,9 +41,9 @@ const ShoeCard = ({
           <ZoomWrapper>
             <Image alt="" src={imageSrc} />
           </ZoomWrapper>
-          {variant === 'on-sale' && <SaleFlag>Sale</SaleFlag>}
+          {variant === 'on-sale' && <SaleFlag style={{'--rotation': rotation + 'deg'}}>Sale</SaleFlag>}
           {variant === 'new-release' && (
-            <NewFlag>Just released!</NewFlag>
+            <NewFlag style={{'--rotation': rotation + 'deg'}}>Just released!</NewFlag>
           )}
         </ImageWrapper>
         <Spacer size={12} />
@@ -85,20 +88,23 @@ const ZoomWrapper = styled.div`
   overflow: hidden;
   border-radius: 16px 16px 4px 4px;
   line-height: 0;
+  background-color: #F5F5F5;
 `;
 
 const Image = styled.img`
   width: 100%;
   transition: 800ms;
+  will-change: transform;
 
   @media (prefers-reduced-motion: no-preference) {
     transition: 400ms;
   }
 
-  &:hover {
+  ${Link}:hover &,
+  ${Link}:focus & {
     transform: scale(1.05) translateY(-4px);
     @media (prefers-reduced-motion: no-preference) {
-      transform: scale(1.1) translateY(-7px);
+      transform: scale(1.2) translateY(-20px) translateX(5px) rotate(15deg);
       transition: 150ms;
     }
   }
@@ -129,6 +135,21 @@ const SalePrice = styled.span`
   color: var(--color-primary);
 `;
 
+const bounce = keyframes`
+  0% {
+    transform: translateY(0);
+  }
+  10% {
+    transform: translateY(-10px) rotate(var(--rotation));
+  }
+  20% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(0);
+  }
+`
+
 const Flag = styled.div`
   position: absolute;
   top: 12px;
@@ -141,6 +162,13 @@ const Flag = styled.div`
   font-weight: ${WEIGHTS.bold};
   color: var(--color-white);
   border-radius: 2px;
+
+  ${Link}:hover &,
+  ${Link}:focus & {
+    @media (prefers-reduced-motion: no-preference) {
+      animation: ${bounce} 2000ms ease-out;
+    }
+  }
 `;
 
 const SaleFlag = styled(Flag)`
